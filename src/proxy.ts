@@ -4,9 +4,23 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  // Skip auth check if env vars not configured
+  if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-')) {
+    const isProtected = request.nextUrl.pathname.startsWith('/dashboard')
+    if (isProtected) {
+      const loginUrl = request.nextUrl.clone()
+      loginUrl.pathname = '/auth/login'
+      return NextResponse.redirect(loginUrl)
+    }
+    return supabaseResponse
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         getAll() {
