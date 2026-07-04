@@ -5,35 +5,47 @@ import { Building2, ArrowLeft, MessageSquare, Phone, Mail, Calendar, Clock } fro
 
 export const dynamic = 'force-dynamic'
 
+interface Inquiry {
+  id: string
+  warehouse_id: string
+  company_name: string
+  contact_name: string | null
+  phone: string
+  email: string | null
+  months: number
+  note: string | null
+  total_estimate: number | null
+  status: string
+  created_at: string
+}
+
 export default async function InquiriesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // Get user's warehouse IDs
   const { data: warehouses } = await supabase
     .from('warehouses')
     .select('id, name')
     .eq('user_id', user.id)
 
-  const wList = warehouses ?? []
-  const warehouseIds = wList.map((w: { id: string }) => w.id)
-  const warehouseMap = Object.fromEntries(wList.map((w: { id: string; name: string }) => [w.id, w.name]))
+  const wList = (warehouses ?? []) as { id: string; name: string }[]
+  const warehouseIds = wList.map(w => w.id)
+  const warehouseMap: Record<string, string> = Object.fromEntries(wList.map(w => [w.id, w.name]))
 
-  let inquiries: Record<string, unknown>[] = []
+  let inquiries: Inquiry[] = []
   if (warehouseIds.length > 0) {
     const { data } = await supabase
       .from('inquiries')
       .select('*')
       .in('warehouse_id', warehouseIds)
       .order('created_at', { ascending: false })
-    inquiries = (data ?? []) as Record<string, unknown>[]
+    inquiries = (data ?? []) as Inquiry[]
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
-        {/* Sidebar */}
         <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-white border-r border-gray-100 fixed top-0 left-0">
           <div className="p-5 border-b border-gray-100">
             <Link href="/" className="flex items-center gap-2 font-bold text-blue-700 text-lg">
@@ -43,9 +55,9 @@ export default async function InquiriesPage() {
           </div>
           <nav className="flex-1 p-4 space-y-1">
             {[
-              { label: 'ภาพรวม', href: '/dashboard' },
-              { label: 'คลังของฉัน', href: '/dashboard' },
-              { label: 'ลงประกาศใหม่', href: '/dashboard/new' },
+              { label: 'ภาพรวม', href: '/dashboard', active: false },
+              { label: 'คลังของฉัน', href: '/dashboard', active: false },
+              { label: 'ลงประกาศใหม่', href: '/dashboard/new', active: false },
               { label: 'Inquiries', href: '/dashboard/inquiries', active: true },
             ].map(item => (
               <Link key={item.label} href={item.href}
@@ -80,16 +92,16 @@ export default async function InquiriesPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {inquiries.map((inq) => {
-                const createdAt = new Date(inq.created_at as string)
+              {inquiries.map(inq => {
+                const createdAt = new Date(inq.created_at)
                 const dateStr = createdAt.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })
                 const timeStr = createdAt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
                 return (
-                  <div key={inq.id as string} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                  <div key={inq.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <div className="font-bold text-gray-900 text-lg">{inq.company_name as string}</div>
-                        {inq.contact_name && <div className="text-gray-500 text-sm">{inq.contact_name as string}</div>}
+                        <div className="font-bold text-gray-900 text-lg">{inq.company_name}</div>
+                        {inq.contact_name && <div className="text-gray-500 text-sm">{inq.contact_name}</div>}
                       </div>
                       <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
                         inq.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
@@ -101,23 +113,23 @@ export default async function InquiriesPage() {
                     </div>
 
                     <div className="text-xs text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-lg inline-block mb-3">
-                      คลัง: {warehouseMap[inq.warehouse_id as string] || 'ไม่ทราบ'}
+                      คลัง: {warehouseMap[inq.warehouse_id] ?? 'ไม่ทราบ'}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Phone size={14} className="text-gray-400" />
-                        <a href={`tel:${inq.phone}`} className="hover:text-blue-600 font-medium">{inq.phone as string}</a>
+                        <a href={`tel:${inq.phone}`} className="hover:text-blue-600 font-medium">{inq.phone}</a>
                       </div>
                       {inq.email && (
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Mail size={14} className="text-gray-400" />
-                          <a href={`mailto:${inq.email}`} className="hover:text-blue-600">{inq.email as string}</a>
+                          <a href={`mailto:${inq.email}`} className="hover:text-blue-600">{inq.email}</a>
                         </div>
                       )}
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Calendar size={14} className="text-gray-400" />
-                        <span>เช่า {inq.months as number} เดือน</span>
+                        <span>เช่า {inq.months} เดือน</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Clock size={14} className="text-gray-400" />
@@ -128,13 +140,13 @@ export default async function InquiriesPage() {
                     {inq.total_estimate && (
                       <div className="bg-blue-50 rounded-xl px-4 py-2 flex justify-between items-center mb-3">
                         <span className="text-sm text-gray-600">ประมาณการรวม</span>
-                        <span className="font-bold text-blue-700">฿{(inq.total_estimate as number).toLocaleString()}</span>
+                        <span className="font-bold text-blue-700">฿{inq.total_estimate.toLocaleString()}</span>
                       </div>
                     )}
 
                     {inq.note && (
                       <div className="bg-gray-50 rounded-xl px-4 py-2 text-sm text-gray-600">
-                        <span className="font-semibold text-gray-700">หมายเหตุ: </span>{inq.note as string}
+                        <span className="font-semibold text-gray-700">หมายเหตุ: </span>{inq.note}
                       </div>
                     )}
 
