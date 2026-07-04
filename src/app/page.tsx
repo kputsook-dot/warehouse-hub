@@ -1,4 +1,7 @@
+'use client';
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search, Building2, CheckCircle, Star, TrendingUp, Users, Zap, ArrowRight, MapPin, Phone } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -7,6 +10,13 @@ import { WAREHOUSES } from '@/lib/data';
 
 export default function HomePage() {
   const featured = WAREHOUSES.filter(w => w.available).slice(0, 3);
+  const [searchQ, setSearchQ] = useState('');
+  const router = useRouter();
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    router.push(`/warehouses${searchQ ? `?q=${encodeURIComponent(searchQ)}` : ''}`);
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -32,16 +42,22 @@ export default function HomePage() {
             <p className="text-lg md:text-xl text-blue-100 mb-8 max-w-xl">
               ค้นหา เปรียบเทียบ และติดต่อเจ้าของคลังโดยตรง — ไม่ต้องผ่านนายหน้า ประหยัดเวลา ได้ราคาดีที่สุด
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 max-w-xl">
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 max-w-xl">
               <div className="flex-1 flex items-center gap-3 bg-white rounded-xl px-4 py-3 shadow-lg">
                 <Search size={18} className="text-gray-400 shrink-0" />
-                <span className="text-gray-400 text-sm">ค้นหาทำเล, นิคม, จังหวัด...</span>
-                <MapPin size={16} className="text-gray-400 ml-auto" />
+                <input
+                  type="text"
+                  value={searchQ}
+                  onChange={e => setSearchQ(e.target.value)}
+                  placeholder="ค้นหาทำเล, นิคม, จังหวัด..."
+                  className="flex-1 text-gray-800 text-sm outline-none bg-transparent"
+                />
+                <MapPin size={16} className="text-gray-400 ml-auto shrink-0" />
               </div>
-              <Link href="/warehouses" className="bg-yellow-400 hover:bg-yellow-300 text-blue-900 font-bold px-6 py-3 rounded-xl transition-colors text-center whitespace-nowrap shadow-lg">
+              <button type="submit" className="bg-yellow-400 hover:bg-yellow-300 text-blue-900 font-bold px-6 py-3 rounded-xl transition-colors text-center whitespace-nowrap shadow-lg">
                 ค้นหาเลย
-              </Link>
-            </div>
+              </button>
+            </form>
             <div className="flex flex-wrap gap-2 mt-5">
               {['ลาดกระบัง', 'บางนา', 'รังสิต', 'EEC ชลบุรี', 'นิคมนวนคร'].map(loc => (
                 <Link key={loc} href={`/warehouses?q=${loc}`} className="text-sm bg-white/10 hover:bg-white/20 border border-white/20 rounded-full px-3 py-1 transition-colors">
