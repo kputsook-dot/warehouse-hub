@@ -4,33 +4,74 @@ import Link from 'next/link';
 import { MapPin, Star, Ruler, DoorOpen, Phone, ArrowLeft, CheckCircle, XCircle, Building2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { WAREHOUSES } from '@/lib/data';
 import BookingForm from './BookingForm';
+import { createClient } from '@/lib/supabase/server';
+import { WAREHOUSES } from '@/lib/data';
+import type { Warehouse } from '@/lib/data';
+
+export const dynamic = 'force-dynamic';
 
 interface Props { params: Promise<{ id: string }> }
 
-export async function generateStaticParams() {
-  return WAREHOUSES.map(w => ({ id: w.id }));
+function mapRow(row: Record<string, unknown>): Warehouse {
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    location: row.location as string,
+    province: row.province as string,
+    area: row.area as number,
+    pricePerMonth: row.price_per_month as number,
+    pricePerSqm: row.price_per_sqm as number,
+    type: row.type as string,
+    available: row.available as boolean,
+    ceilingHeight: row.ceiling_height as number,
+    loadingDocks: row.loading_docks as number,
+    hasSprinkler: row.has_sprinkler as boolean,
+    hasForklift: row.has_forklift as boolean,
+    hasSecurity: row.has_security as boolean,
+    hasCCTV: row.has_cctv as boolean,
+    minRentMonths: row.min_rent_months as number,
+    ownerName: row.owner_name as string,
+    ownerPhone: row.owner_phone as string,
+    description: row.description as string,
+    images: (row.images as string[]) || [],
+    nearbyHighways: (row.nearby_highways as string[]) || [],
+    rating: row.rating as number,
+    reviewCount: row.review_count as number,
+  };
 }
 
 export default async function WarehouseDetailPage({ params }: Props) {
   const { id } = await params;
-  const w = WAREHOUSES.find(x => x.id === id);
+
+  // Try Supabase first
+  let w: Warehouse | undefined;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.from('warehouses').select('*').eq('id', id).single();
+    if (data) w = mapRow(data as Record<string, unknown>);
+  } catch {
+    // fallback to mock data
+  }
+
+  // Fallback to mock data
+  if (!w) w = WAREHOUSES.find(x => x.id === id);
   if (!w) notFound();
 
   const TYPE_COLORS: Record<string, string> = {
-    '​ทั่วไป': 'bg-blue-100 text-blue-700',
+    'ทั่วไป': 'bg-blue-100 text-blue-700',
     'ควบคุมอุณหภูมิ': 'bg-cyan-100 text-cyan-700',
     'ขนาดใหญ่': 'bg-purple-100 text-purple-700',
     'Bonded': 'bg-amber-100 text-amber-700',
   };
+
+  const mainImage = w.images?.[0] || 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800';
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-        {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
           <Link href="/" className="hover:text-blue-700">หน้าแรก</Link>
           <span>/</span>
@@ -40,12 +81,11 @@ export default async function WarehouseDetailPage({ params }: Props) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left: Main content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Image gallery */}
             <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-              <div className="relative h-72 md:h-96">
-                <Image src={w.images[0]} alt={w.name} fill className="object-cover" sizes="(max-width:1024px) 100vw, 66vw" priority />
+              <div className="relative h-72 md:h-96 bg-gray-100">
+                <Image src={mainImage} alt={w.name} fill className="object-cover" sizes="(max-width:1024px) 100vw, 66vw" priority unoptimized />
                 <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
                   <span className={`text-sm font-semibold px-3 py-1 rounded-full ${TYPE_COLORS[w.type] ?? 'bg-gray-100 text-gray-700'}`}>{w.type}</span>
                   {w.available
@@ -58,7 +98,7 @@ export default async function WarehouseDetailPage({ params }: Props) {
                 <div className="flex gap-2 p-3 overflow-x-auto">
                   {w.images.slice(1).map((img, i) => (
                     <div key={i} className="relative w-20 h-16 shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                      <Image src={img} alt="" fill className="object-cover" sizes="80px" />
+                      <Image src={img} alt="" fill className="object-cover" sizes="80px" unoptimized />
                     </div>
                   ))}
                 </div>
@@ -74,17 +114,15 @@ export default async function WarehouseDetailPage({ params }: Props) {
               </div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex gap-0.5">
-                  {[1,2,3,4,5].map(s => <Star key={s} size={15} className={s <= Math.floor(w.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-200 fill-gray-200'} />)}
+                  {[1,2,3,4,5].map(s => <Star key={s} size={15} className={s <= Math.floor(w!.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-200 fill-gray-200'} />)}
                 </div>
                 <span className="font-semibold text-gray-800 text-sm">{w.rating}</span>
                 <span className="text-gray-400 text-sm">({w.reviewCount} รีวิว)</span>
               </div>
-
-              {/* Price highlight */}
               <div className="bg-blue-50 rounded-xl p-4 flex items-center justify-between">
                 <div>
                   <div className="text-3xl font-extrabold text-blue-700">฿{w.pricePerMonth.toLocaleString()}</div>
-                  <div className="text-sm text-gray-500">ต่อเดือน · ฿{w.pricePerSqm}/ตร.ม.</div>
+                  <div className="text-sm text-gray-500">ต่อเดือน · ฿{Number(w.pricePerSqm).toFixed(0)}/ตร.ม.</div>
                 </div>
                 <div className="text-right text-sm text-gray-500">
                   <div>เช่าขั้นต่ำ</div>
@@ -93,7 +131,7 @@ export default async function WarehouseDetailPage({ params }: Props) {
               </div>
             </div>
 
-            {/* Specs grid */}
+            {/* Specs */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <h2 className="text-lg font-bold text-gray-900 mb-4">ข้อมูลคลังสินค้า</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -110,8 +148,6 @@ export default async function WarehouseDetailPage({ params }: Props) {
                   </div>
                 ))}
               </div>
-
-              {/* Amenities */}
               <h3 className="text-sm font-bold text-gray-700 mb-3">สิ่งอำนวยความสะดวก</h3>
               <div className="grid grid-cols-2 gap-2">
                 {[
@@ -129,20 +165,22 @@ export default async function WarehouseDetailPage({ params }: Props) {
             </div>
 
             {/* Description */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h2 className="text-lg font-bold text-gray-900 mb-3">รายละเอียด</h2>
-              <p className="text-gray-600 leading-relaxed">{w.description}</p>
-              {w.nearbyHighways.length > 0 && (
-                <div className="mt-4">
-                  <div className="text-sm font-semibold text-gray-700 mb-2">เส้นทางใกล้เคียง:</div>
-                  <div className="flex flex-wrap gap-2">
-                    {w.nearbyHighways.map(h => (
-                      <span key={h} className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">{h}</span>
-                    ))}
+            {w.description && (
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h2 className="text-lg font-bold text-gray-900 mb-3">รายละเอียด</h2>
+                <p className="text-gray-600 leading-relaxed">{w.description}</p>
+                {w.nearbyHighways.length > 0 && (
+                  <div className="mt-4">
+                    <div className="text-sm font-semibold text-gray-700 mb-2">เส้นทางใกล้เคียง:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {w.nearbyHighways.map(h => (
+                        <span key={h} className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">{h}</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Owner */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -152,18 +190,19 @@ export default async function WarehouseDetailPage({ params }: Props) {
                   <Building2 size={22} />
                 </div>
                 <div className="flex-1">
-                  <div className="font-semibold text-gray-900">{w.ownerName}</div>
-                  <div className="text-sm text-gray-500 mt-0.5">{w.ownerPhone}</div>
+                  <div className="font-semibold text-gray-900">{w.ownerName || 'เจ้าของคลัง'}</div>
+                  <div className="text-sm text-gray-500 mt-0.5">{w.ownerPhone || '-'}</div>
                 </div>
-                <a href={`tel:${w.ownerPhone}`} className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 py-2.5 rounded-xl transition-colors text-sm">
-                  <Phone size={15} />
-                  โทรเลย
-                </a>
+                {w.ownerPhone && (
+                  <a href={`tel:${w.ownerPhone}`} className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 py-2.5 rounded-xl transition-colors text-sm">
+                    <Phone size={15} />โทรเลย
+                  </a>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Right: Booking form (sticky) */}
+          {/* Booking form */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
               <BookingForm warehouse={w} />
