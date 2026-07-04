@@ -1,0 +1,247 @@
+export interface Warehouse {
+  id: string;
+  name: string;
+  location: string;
+  province: string;
+  area: number;
+  pricePerMonth: number;
+  pricePerSqm: number;
+  type: '​ทั่วไป' | 'ควบคุมอุณหภูมิ' | 'ขนาดใหญ่' | 'Bonded';
+  available: boolean;
+  rating: number;
+  reviewCount: number;
+  image: string;
+  images: string[];
+  ceilingHeight: number;
+  loadingDocks: number;
+  hasSprinkler: boolean;
+  hasForklift: boolean;
+  hasSecurity: boolean;
+  hasCCTV: boolean;
+  minRentMonths: number;
+  ownerName: string;
+  ownerPhone: string;
+  description: string;
+  lat: number;
+  lng: number;
+  nearbyHighways: string[];
+}
+
+export const WAREHOUSES: Warehouse[] = [
+  {
+    id: '1',
+    name: 'คลังสินค้า ลาดกระบัง A',
+    location: 'ลาดกระบัง, กรุงเทพฯ',
+    province: 'กรุงเทพฯ',
+    area: 2000,
+    pricePerMonth: 45000,
+    pricePerSqm: 22.5,
+    type: '​ทั่วไป',
+    available: true,
+    rating: 4.8,
+    reviewCount: 24,
+    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80',
+      'https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80',
+      'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=800&q=80',
+    ],
+    ceilingHeight: 8,
+    loadingDocks: 3,
+    hasSprinkler: true,
+    hasForklift: true,
+    hasSecurity: true,
+    hasCCTV: true,
+    minRentMonths: 1,
+    ownerName: 'บริษัท ลาดกระบัง โลจิสติกส์ จำกัด',
+    ownerPhone: '081-234-5678',
+    description: 'คลังสินค้าคุณภาพสูง ใกล้สนามบินสุวรรณภูมิเพียง 5 นาที เหมาะสำหรับธุรกิจ e-commerce และ import/export มีระบบรักษาความปลอดภัย 24 ชั่วโมง รองรับรถ 10 ล้อ',
+    lat: 13.7285,
+    lng: 100.7793,
+    nearbyHighways: ['มอเตอร์เวย์ 7', 'ถนนลาดกระบัง'],
+  },
+  {
+    id: '2',
+    name: 'คลังสินค้า บางนา Premium',
+    location: 'บางนา, กรุงเทพฯ',
+    province: 'กรุงเทพฯ',
+    area: 1500,
+    pricePerMonth: 55000,
+    pricePerSqm: 36.7,
+    type: 'ควบคุมอุณหภูมิ',
+    available: true,
+    rating: 4.9,
+    reviewCount: 31,
+    image: 'https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80',
+      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80',
+    ],
+    ceilingHeight: 10,
+    loadingDocks: 2,
+    hasSprinkler: true,
+    hasForklift: false,
+    hasSecurity: true,
+    hasCCTV: true,
+    minRentMonths: 3,
+    ownerName: 'คุณสมชาย วงศ์ธนากร',
+    ownerPhone: '089-876-5432',
+    description: 'คลังสินค้าควบคุมอุณหภูมิ เหมาะสำหรับสินค้ายา เครื่องสำอาง และอาหารเสริม ใกล้ทางด่วนบูรพาวิถี อุณหภูมิคงที่ 18-25°C',
+    lat: 13.6661,
+    lng: 100.6059,
+    nearbyHighways: ['บูรพาวิถี', 'ถนนบางนา-ตราด'],
+  },
+  {
+    id: '3',
+    name: 'คลังสินค้า รังสิต โซน B',
+    location: 'รังสิต, ปทุมธานี',
+    province: 'ปทุมธานี',
+    area: 5000,
+    pricePerMonth: 85000,
+    pricePerSqm: 17.0,
+    type: 'ขนาดใหญ่',
+    available: true,
+    rating: 4.5,
+    reviewCount: 18,
+    image: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=800&q=80',
+    ],
+    ceilingHeight: 12,
+    loadingDocks: 6,
+    hasSprinkler: true,
+    hasForklift: true,
+    hasSecurity: true,
+    hasCCTV: true,
+    minRentMonths: 6,
+    ownerName: 'บริษัท รังสิต อินดัสเทรียล จำกัด',
+    ownerPhone: '02-345-6789',
+    description: 'คลังสินค้าขนาดใหญ่ติดถนนพหลโยธิน มี loading dock 6 จุด รองรับรถ 18 ล้อ มีพื้นที่จอดรถขนาดใหญ่ เหมาะสำหรับบริษัท distribution',
+    lat: 14.0208,
+    lng: 100.7285,
+    nearbyHighways: ['พหลโยธิน', 'วิภาวดีรังสิต'],
+  },
+  {
+    id: '4',
+    name: 'คลังสินค้า สมุทรปราการ SME',
+    location: 'เมือง, สมุทรปราการ',
+    province: 'สมุทรปราการ',
+    area: 800,
+    pricePerMonth: 18000,
+    pricePerSqm: 22.5,
+    type: '​ทั่วไป',
+    available: false,
+    rating: 4.2,
+    reviewCount: 9,
+    image: 'https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=800&q=80',
+    ],
+    ceilingHeight: 6,
+    loadingDocks: 1,
+    hasSprinkler: false,
+    hasForklift: false,
+    hasSecurity: true,
+    hasCCTV: true,
+    minRentMonths: 1,
+    ownerName: 'คุณมาลี สุขใจ',
+    ownerPhone: '082-111-2222',
+    description: 'คลังสินค้าขนาดเล็กเหมาะสำหรับ SME และร้านค้าออนไลน์ ใกล้นิคมอุตสาหกรรมบางปู ราคาประหยัด เช่าได้เลยรายเดือน',
+    lat: 13.5990,
+    lng: 100.5998,
+    nearbyHighways: ['ถนนสุขุมวิท', 'บางนา-ตราด'],
+  },
+  {
+    id: '5',
+    name: 'คลังสินค้า นวนคร Premium',
+    location: 'นวนคร, ปทุมธานี',
+    province: 'ปทุมธานี',
+    area: 3000,
+    pricePerMonth: 62000,
+    pricePerSqm: 20.7,
+    type: '​ทั่วไป',
+    available: true,
+    rating: 4.7,
+    reviewCount: 42,
+    image: 'https://images.unsplash.com/photo-1565793979943-b8a7b32f95ad?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1565793979943-b8a7b32f95ad?w=800&q=80',
+    ],
+    ceilingHeight: 9,
+    loadingDocks: 4,
+    hasSprinkler: true,
+    hasForklift: true,
+    hasSecurity: true,
+    hasCCTV: true,
+    minRentMonths: 3,
+    ownerName: 'บริษัท นวนคร โกดัง จำกัด',
+    ownerPhone: '02-999-8888',
+    description: 'คลังสินค้าในนิคมนวนคร ระบบครบครัน เหมาะสำหรับบริษัท manufacturing และ distribution ทีมดูแล 24/7',
+    lat: 14.1167,
+    lng: 100.7833,
+    nearbyHighways: ['พหลโยธิน', 'วงแหวนรอบนอก'],
+  },
+  {
+    id: '6',
+    name: 'คลังสินค้า ชลบุรี EEC Zone',
+    location: 'อมตะนคร, ชลบุรี',
+    province: 'ชลบุรี',
+    area: 4500,
+    pricePerMonth: 78000,
+    pricePerSqm: 17.3,
+    type: 'ขนาดใหญ่',
+    available: true,
+    rating: 4.6,
+    reviewCount: 15,
+    image: 'https://images.unsplash.com/photo-1612528443702-f6741f70a049?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1612528443702-f6741f70a049?w=800&q=80',
+    ],
+    ceilingHeight: 11,
+    loadingDocks: 5,
+    hasSprinkler: true,
+    hasForklift: true,
+    hasSecurity: true,
+    hasCCTV: true,
+    minRentMonths: 6,
+    ownerName: 'บริษัท อีสเทิร์น โลจิสติกส์ จำกัด',
+    ownerPhone: '038-111-222',
+    description: 'คลังสินค้าในโซน EEC ใกล้ท่าเรือแหลมฉบัง เหมาะสำหรับธุรกิจ import/export รองรับรถ 10-18 ล้อ ใกล้ทางหลวงหมายเลข 7',
+    lat: 13.1893,
+    lng: 100.9854,
+    nearbyHighways: ['ทางหลวง 7', 'บูรพาวิถี'],
+  },
+  {
+    id: '7',
+    name: 'คลังสินค้า Bonded นิคมบางชัน',
+    location: 'บางชัน, กรุงเทพฯ',
+    province: 'กรุงเทพฯ',
+    area: 2800,
+    pricePerMonth: 92000,
+    pricePerSqm: 32.9,
+    type: 'Bonded',
+    available: true,
+    rating: 4.9,
+    reviewCount: 8,
+    image: 'https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=800&q=80',
+    ],
+    ceilingHeight: 10,
+    loadingDocks: 4,
+    hasSprinkler: true,
+    hasForklift: true,
+    hasSecurity: true,
+    hasCCTV: true,
+    minRentMonths: 12,
+    ownerName: 'บริษัท บางชัน โบนด์เด็ด จำกัด',
+    ownerPhone: '02-777-9999',
+    description: 'คลังสินค้าทัณฑ์บน (Bonded Warehouse) ได้รับการรับรองจากกรมศุลกากร เหมาะสำหรับสินค้า import ที่รอผ่านพิธีการศุลกากร',
+    lat: 13.7800,
+    lng: 100.7200,
+    nearbyHighways: ['ถนนรามอินทรา', 'วงแหวนรอบนอก'],
+  },
+];
+
+export const PROVINCES = ['ทั้งหมด', 'กรุงเทพฯ', 'ปทุมธานี', 'สมุทรปราการ', 'ชลบุรี', 'นนทบุรี'];
+export const TYPES = ['ทั้งหมด', '​ทั่วไป', 'ควบคุมอุณหภูมิ', 'ขนาดใหญ่', 'Bonded'];
