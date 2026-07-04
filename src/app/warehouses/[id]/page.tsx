@@ -22,7 +22,7 @@ function mapRow(row: Record<string, unknown>): Warehouse {
     area: row.area as number,
     pricePerMonth: row.price_per_month as number,
     pricePerSqm: row.price_per_sqm as number,
-    type: row.type as string,
+    type: row.type as Warehouse['type'],
     available: row.available as boolean,
     ceilingHeight: row.ceiling_height as number,
     loadingDocks: row.loading_docks as number,
@@ -35,9 +35,12 @@ function mapRow(row: Record<string, unknown>): Warehouse {
     ownerPhone: row.owner_phone as string,
     description: row.description as string,
     images: (row.images as string[]) || [],
+    image: (row.images as string[])?.[0] || '',
     nearbyHighways: (row.nearby_highways as string[]) || [],
     rating: row.rating as number,
     reviewCount: row.review_count as number,
+    lat: 13.75,
+    lng: 100.5,
   };
 }
 
