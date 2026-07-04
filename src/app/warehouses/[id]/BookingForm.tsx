@@ -2,11 +2,13 @@
 import { useState } from 'react';
 import { Send, CheckCircle } from 'lucide-react';
 import { Warehouse } from '@/lib/data';
+import { createClient } from '@/lib/supabase/client';
 
 export default function BookingForm({ warehouse: w }: { warehouse: Warehouse }) {
   const [form, setForm] = useState({ company: '', name: '', phone: '', email: '', months: String(w.minRentMonths), note: '' });
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const months = parseInt(form.months) || w.minRentMonths;
   const total = w.pricePerMonth * months;
@@ -16,11 +18,31 @@ export default function BookingForm({ warehouse: w }: { warehouse: Warehouse }) 
     setForm(prev => ({ ...prev, [key]: val }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.company || !form.phone) return;
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSent(true); }, 1200);
+    setError('');
+
+    try {
+      const supabase = createClient();
+      const { error: err } = await supabase.from('inquiries').insert({
+        warehouse_id: w.id,
+        company_name: form.company,
+        contact_name: form.name,
+        phone: form.phone,
+        email: form.email,
+        months: months,
+        note: form.note,
+        total_estimate: total + commission,
+      });
+      if (err) throw err;
+      setSent(true);
+    } catch {
+      setError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (sent) {
@@ -40,7 +62,6 @@ export default function BookingForm({ warehouse: w }: { warehouse: Warehouse }) 
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      {/* Header */}
       <div className="bg-gradient-to-r from-blue-800 to-blue-600 p-5 text-white">
         <div className="text-xs text-blue-200 mb-1">ส่งคำขอข้อมูล / จอง</div>
         <div className="text-2xl font-extrabold">฿{w.pricePerMonth.toLocaleString()}</div>
@@ -48,6 +69,7 @@ export default function BookingForm({ warehouse: w }: { warehouse: Warehouse }) 
       </div>
 
       <form onSubmit={handleSubmit} className="p-5 space-y-3">
+        {error && <div className="text-red-600 text-xs bg-red-50 rounded-lg px-3 py-2">{error}</div>}
         <div>
           <label className="text-xs font-semibold text-gray-600 block mb-1">ชื่อบริษัท / ผู้เช่า *</label>
           <input required value={form.company} onChange={e => set('company', e.target.value)} placeholder="บริษัท ABC จำกัด" className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500" />
@@ -75,7 +97,6 @@ export default function BookingForm({ warehouse: w }: { warehouse: Warehouse }) 
           <textarea value={form.note} onChange={e => set('note', e.target.value)} rows={2} placeholder="ประเภทสินค้าที่จะเก็บ, ความต้องการพิเศษ..." className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500 resize-none" />
         </div>
 
-        {/* Price summary */}
         <div className="bg-gray-50 rounded-xl p-3 text-sm space-y-1">
           <div className="flex justify-between text-gray-600">
             <span>ค่าเช่า ({months} เดือน)</span>
@@ -91,16 +112,11 @@ export default function BookingForm({ warehouse: w }: { warehouse: Warehouse }) 
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading || !w.available}
-          className="w-full flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 disabled:bg-gray-300 text-white font-bold py-3 rounded-xl transition-colors text-sm"
-        >
-          {loading ? (
-            <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          ) : (
-            <Send size={15} />
-          )}
+        <button type="submit" disabled={loading || !w.available}
+          className="w-full flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 disabled:bg-gray-300 text-white font-bold py-3 rounded-xl transition-colors text-sm">
+          {loading
+            ? <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            : <Send size={15} />}
           {w.available ? 'ส่งคำขอจอง' : 'คลังนี้ไม่ว่าง'}
         </button>
         <p className="text-xs text-center text-gray-400">ไม่มีค่าใช้จ่ายในการส่งคำขอ · ข้อมูลปลอดภัย</p>

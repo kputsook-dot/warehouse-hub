@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Building2, Plus, Eye, Edit, BarChart3, LogOut, CheckCircle, Clock, Star, TrendingUp } from 'lucide-react'
+import { Building2, Plus, Eye, Edit, BarChart3, CheckCircle, Star, TrendingUp, MessageSquare } from 'lucide-react'
 import LogoutButton from './LogoutButton'
 
 export default async function DashboardPage() {
@@ -17,8 +17,18 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false })
 
   const wList = warehouses ?? []
-  const totalRevenue = wList.filter(w => w.available === false).reduce((s: number, w: { price_per_month: number }) => s + w.price_per_month, 0)
   const avgRating = wList.length ? (wList.reduce((s: number, w: { rating: number }) => s + (w.rating ?? 5), 0) / wList.length).toFixed(1) : '—'
+
+  // Fetch real inquiry count for this user's warehouses
+  const warehouseIds = wList.map((w: { id: string }) => w.id)
+  let inquiryCount = 0
+  if (warehouseIds.length > 0) {
+    const { count } = await supabase
+      .from('inquiries')
+      .select('*', { count: 'exact', head: true })
+      .in('warehouse_id', warehouseIds)
+    inquiryCount = count ?? 0
+  }
 
   const company = user.user_metadata?.company_name || user.email
 
@@ -69,18 +79,29 @@ export default async function DashboardPage() {
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[
-              { label: 'คลังทั้งหมด', value: wList.length, icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50' },
-              { label: 'ว่างอยู่', value: wList.filter((w: { available: boolean }) => w.available).length, icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50' },
-              { label: 'Inquiries เดือนนี้', value: wList.length * 3, icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50' },
-              { label: 'Rating เฉลี่ย', value: avgRating, icon: Star, color: 'text-amber-600', bg: 'bg-amber-50' },
+              { label: 'คลังทั้งหมด', value: wList.length, icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50', href: null },
+              { label: 'ว่างอยู่', value: wList.filter((w: { available: boolean }) => w.available).length, icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50', href: null },
+              { label: 'Inquiries ทั้งหมด', value: inquiryCount, icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-50', href: '/dashboard/inquiries' },
+              { label: 'Rating เฉลี่ย', value: avgRating, icon: Star, color: 'text-amber-600', bg: 'bg-amber-50', href: null },
             ].map(s => (
-              <div key={s.label} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                <div className={`inline-flex p-2 rounded-xl ${s.bg} mb-3`}>
-                  <s.icon size={18} className={s.color} />
+              s.href ? (
+                <Link key={s.label} href={s.href} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:border-purple-200 hover:shadow-md transition-all cursor-pointer">
+                  <div className={`inline-flex p-2 rounded-xl ${s.bg} mb-3`}>
+                    <s.icon size={18} className={s.color} />
+                  </div>
+                  <div className="text-2xl font-extrabold text-gray-900">{s.value}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{s.label}</div>
+                  <div className="text-xs text-purple-600 font-semibold mt-1">ดูรายละเอียด →</div>
+                </Link>
+              ) : (
+                <div key={s.label} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                  <div className={`inline-flex p-2 rounded-xl ${s.bg} mb-3`}>
+                    <s.icon size={18} className={s.color} />
+                  </div>
+                  <div className="text-2xl font-extrabold text-gray-900">{s.value}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{s.label}</div>
                 </div>
-                <div className="text-2xl font-extrabold text-gray-900">{s.value}</div>
-                <div className="text-xs text-gray-500 mt-0.5">{s.label}</div>
-              </div>
+              )
             ))}
           </div>
 
