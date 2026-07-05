@@ -135,7 +135,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">ทำไมต้องเลือก WarehouseHub?</h2>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">ทำไมต้องเลือก WarehouseOK?</h2>
               <p className="text-gray-500 mb-8">เราเป็นมากกว่าบอร์ดประกาศ — ออกแบบมาเพื่อธุรกิจโดยเฉพาะ</p>
               <div className="space-y-4">
                 {[
@@ -219,7 +219,7 @@ export default function HomePage() {
           <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-10">เสียงจากผู้ใช้งานจริง</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { name: 'คุณวิชัย', role: 'ผู้จัดการฝ่าย Logistics บริษัท XYZ', text: 'เคยใช้เวลา 2 สัปดาห์หาคลังสินค้าเพิ่ม ตอนนี้ใช้ WarehouseHub หาเจอภายใน 1 วัน', rating: 5 },
+              { name: 'คุณวิชัย', role: 'ผู้จัดการฝ่าย Logistics บริษัท XYZ', text: 'เคยใช้เวลา 2 สัปดาห์หาคลังสินค้าเพิ่ม ตอนนี้ใช้ WarehouseOK หาเจอภายใน 1 วัน', rating: 5 },
               { name: 'คุณสุภาพร', role: 'เจ้าของคลังสินค้า รังสิต', text: 'ลง listing แล้วได้ลูกค้าใหม่ภายใน 3 วัน ระบบใช้ง่าย ไม่ต้องผ่านนายหน้า ได้เงินเร็วขึ้น', rating: 5 },
               { name: 'คุณอนุชา', role: 'CEO บริษัท e-commerce', text: 'ข้อมูลครบถ้วน มีรูปจริง สเปคจริง ทำให้ตัดสินใจได้เร็ว ไม่ต้องขับรถไปดูทีละที่', rating: 5 },
             ].map(r => (

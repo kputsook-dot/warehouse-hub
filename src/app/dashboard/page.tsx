@@ -41,7 +41,7 @@ export default async function DashboardPage() {
           <div className="p-5 border-b border-gray-100">
             <Link href="/" className="flex items-center gap-2 font-bold text-blue-700 text-lg">
               <div className="bg-blue-700 text-white p-1.5 rounded-lg"><Building2 size={18} /></div>
-              WarehouseHub
+              WarehouseOK
             </Link>
           </div>
           <nav className="flex-1 p-4 space-y-1">

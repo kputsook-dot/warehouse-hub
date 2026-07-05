@@ -36,7 +36,7 @@ export default function Navbar() {
             <div className="bg-blue-700 text-white p-1.5 rounded-lg">
               <Building2 size={20} />
             </div>
-            <span>WarehouseHub</span>
+            <span>WarehouseOK</span>
           </Link>
 
           {/* Desktop nav */}

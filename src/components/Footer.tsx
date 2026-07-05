@@ -12,7 +12,7 @@ export default function Footer() {
               <div className="bg-blue-600 p-1.5 rounded-lg">
                 <Building2 size={18} />
               </div>
-              WarehouseHub
+              WarehouseOK
             </div>
             <p className="text-sm leading-relaxed">
               แพลตฟอร์มค้นหาคลังสินค้าให้เช่าทั่วประเทศไทย เชื่อมต่อผู้เช่าและเจ้าของคลังอย่างมีประสิทธิภาพ
@@ -53,7 +53,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-6 text-sm text-center">
-          © 2025 WarehouseHub · สงวนลิขสิทธิ์ · <Link href="/privacy" className="hover:text-white">นโยบายความเป็นส่วนตัว</Link>
+          © 2025 WarehouseOK · สงวนลิขสิทธิ์ · <Link href="/privacy" className="hover:text-white">นโยบายความเป็นส่วนตัว</Link>
         </div>
       </div>
     </footer>

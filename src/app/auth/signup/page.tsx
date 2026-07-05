@@ -65,7 +65,7 @@ export default function SignupPage() {
           <div className="bg-white text-blue-700 p-2 rounded-xl shadow">
             <Building2 size={24} />
           </div>
-          <span className="text-white font-bold text-2xl">WarehouseHub</span>
+          <span className="text-white font-bold text-2xl">WarehouseOK</span>
         </Link>
 
         <div className="bg-white rounded-3xl shadow-2xl p-8">

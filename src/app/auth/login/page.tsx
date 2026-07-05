@@ -90,7 +90,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
           <div className="bg-white text-blue-700 p-2 rounded-xl shadow"><Building2 size={24} /></div>
-          <span className="text-white font-bold text-2xl">WarehouseHub</span>
+          <span className="text-white font-bold text-2xl">WarehouseOK</span>
         </Link>
         <Suspense fallback={<div className="bg-white rounded-3xl p-8 animate-pulse h-64" />}>
           <LoginForm />

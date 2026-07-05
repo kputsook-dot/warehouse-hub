@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WarehouseHub — หาคลังสินค้าให้เช่าทั่วไทย",
+  title: "WarehouseOK — หาคลังสินค้าให้เช่าทั่วไทย",
   description: "แพลตฟอร์มค้นหาคลังสินค้าให้เช่า ทั่วประเทศไทย เปรียบเทียบราคา จองออนไลน์ได้เลย",
 };
 
