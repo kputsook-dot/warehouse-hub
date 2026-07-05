@@ -27,31 +27,34 @@ export async function POST(req: NextRequest) {
     })
     if (dbError) throw dbError
 
-    // Get warehouse name + owner user_id
-    const { data: warehouse } = await supabase
-      .from('warehouses')
-      .select('name, user_id')
-      .eq('id', warehouse_id)
-      .single()
+    // Send email notification (non-blocking — don't fail if email fails)
+    try {
+      const { data: warehouse } = await supabase
+        .from('warehouses')
+        .select('name, user_id')
+        .eq('id', warehouse_id)
+        .single()
 
-    // Get owner email from auth (requires service role)
-    if (warehouse?.user_id) {
-      const admin = createAdminClient()
-      const { data: userData } = await admin.auth.admin.getUserById(warehouse.user_id)
-      const ownerEmail = userData?.user?.email
-      if (ownerEmail) {
-        await sendInquiryNotification({
-          ownerEmail,
-          warehouseName: warehouse.name,
-          companyName: company_name,
-          contactName: contact_name,
-          phone,
-          email,
-          months,
-          totalEstimate: total_estimate,
-          note,
-        })
+      if (warehouse?.user_id) {
+        const admin = createAdminClient()
+        const { data: userData } = await admin.auth.admin.getUserById(warehouse.user_id)
+        const ownerEmail = userData?.user?.email
+        if (ownerEmail) {
+          await sendInquiryNotification({
+            ownerEmail,
+            warehouseName: warehouse.name,
+            companyName: company_name,
+            contactName: contact_name,
+            phone,
+            email,
+            months,
+            totalEstimate: total_estimate,
+            note,
+          })
+        }
       }
+    } catch (emailErr) {
+      console.error('Email notification failed (non-fatal):', emailErr)
     }
 
     return NextResponse.json({ success: true })
