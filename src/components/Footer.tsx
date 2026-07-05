@@ -45,8 +45,8 @@ export default function Footer() {
           <div id="contact">
             <h4 className="text-white font-semibold mb-3 text-sm">ติดต่อเรา</h4>
             <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2"><Phone size={14} /><a href="tel:02-000-0000" className="hover:text-white">02-000-0000</a></li>
-              <li className="flex items-center gap-2"><Mail size={14} /><a href="mailto:hello@warehousehub.th" className="hover:text-white">hello@warehousehub.th</a></li>
+              <li className="flex items-center gap-2"><Phone size={14} /><a href="tel:0960705558" className="hover:text-white">096-070-5558</a></li>
+              <li className="flex items-center gap-2"><Mail size={14} /><a href="mailto:nathasa@warehouseok.com" className="hover:text-white">nathasa@warehouseok.com</a></li>
               <li className="flex items-start gap-2"><MapPin size={14} className="mt-0.5 shrink-0" /><span>กรุงเทพมหานคร ประเทศไทย</span></li>
             </ul>
           </div>

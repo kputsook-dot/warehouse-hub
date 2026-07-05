@@ -49,8 +49,8 @@ export default function Navbar() {
 
           {/* Right side */}
           <div className="hidden md:flex items-center gap-3">
-            <a href="tel:02-000-0000" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-700">
-              <Phone size={14} />02-000-0000
+            <a href="tel:0960705558" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-700">
+              <Phone size={14} />096-070-5558
             </a>
 
             {user ? (
