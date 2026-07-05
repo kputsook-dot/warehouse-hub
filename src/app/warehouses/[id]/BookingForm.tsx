@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { Send, CheckCircle } from 'lucide-react';
 import { Warehouse } from '@/lib/data';
-import { createClient } from '@/lib/supabase/client';
 
 export default function BookingForm({ warehouse: w }: { warehouse: Warehouse }) {
   const [form, setForm] = useState({ company: '', name: '', phone: '', email: '', months: String(w.minRentMonths), note: '' });
@@ -25,18 +24,21 @@ export default function BookingForm({ warehouse: w }: { warehouse: Warehouse }) 
     setError('');
 
     try {
-      const supabase = createClient();
-      const { error: err } = await supabase.from('inquiries').insert({
-        warehouse_id: w.id,
-        company_name: form.company,
-        contact_name: form.name,
-        phone: form.phone,
-        email: form.email,
-        months: months,
-        note: form.note,
-        total_estimate: total + commission,
+      const res = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          warehouse_id: w.id,
+          company_name: form.company,
+          contact_name: form.name,
+          phone: form.phone,
+          email: form.email,
+          months,
+          note: form.note,
+          total_estimate: total + commission,
+        }),
       });
-      if (err) throw err;
+      if (!res.ok) throw new Error();
       setSent(true);
     } catch {
       setError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
