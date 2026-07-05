@@ -27,34 +27,34 @@ export async function POST(req: NextRequest) {
     })
     if (dbError) throw dbError
 
-    // Fire-and-forget email — never blocks or throws
-    void (async () => {
-      try {
-        const { data: warehouse } = await supabase
-          .from('warehouses')
-          .select('name, user_id')
-          .eq('id', warehouse_id)
-          .single()
-        if (!warehouse?.user_id) return
+    // Send email — await but don't fail if email errors
+    try {
+      const { data: warehouse } = await supabase
+        .from('warehouses')
+        .select('name, user_id')
+        .eq('id', warehouse_id)
+        .single()
+      if (warehouse?.user_id) {
         const admin = createAdminClient()
         const { data: userData } = await admin.auth.admin.getUserById(warehouse.user_id)
         const ownerEmail = userData?.user?.email
-        if (!ownerEmail) return
-        await sendInquiryNotification({
-          ownerEmail,
-          warehouseName: warehouse.name,
-          companyName: company_name,
-          contactName: contact_name,
-          phone,
-          email,
-          months,
-          totalEstimate: total_estimate,
-          note,
-        })
-      } catch (e) {
-        console.error('Email failed (non-fatal):', e)
+        if (ownerEmail) {
+          await sendInquiryNotification({
+            ownerEmail,
+            warehouseName: warehouse.name,
+            companyName: company_name,
+            contactName: contact_name,
+            phone,
+            email,
+            months,
+            totalEstimate: total_estimate,
+            note,
+          })
+        }
       }
-    })()
+    } catch (e) {
+      console.error('Email failed (non-fatal):', e)
+    }
 
     return NextResponse.json({ success: true })
   } catch (err) {
