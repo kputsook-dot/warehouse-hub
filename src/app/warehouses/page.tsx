@@ -79,7 +79,7 @@ export default function WarehousesPage() {
   const results = useMemo(() => {
     let list = allWarehouses.filter(w => {
       const q = search.toLowerCase()
-      const matchSearch = !q || w.name.toLowerCase().includes(q) || w.location.toLowerCase().includes(q) || w.province.toLowerCase().includes(q)
+      const matchSearch = !q || w.name.toLowerCase().includes(q) || w.location.toLowerCase().includes(q) || w.province.toLowerCase().includes(q) || w.description.toLowerCase().includes(q)
       const matchProvince = province === 'ทั้งหมด' || w.province === province
       const matchType = type === 'ทั้งหมด' || w.type === type
       const matchAvail = !availableOnly || w.available
