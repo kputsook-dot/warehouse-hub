@@ -350,6 +350,6 @@ export const translations = {
       privacy: 'Privacy Policy',
     },
   },
-} as const
+}
 
 export type Translations = typeof translations.th
