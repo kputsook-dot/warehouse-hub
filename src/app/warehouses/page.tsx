@@ -7,8 +7,8 @@ import WarehouseCard from '@/components/WarehouseCard'
 import { WAREHOUSES as MOCK_DATA, PROVINCES, TYPES } from '@/lib/data'
 import { createClient } from '@/lib/supabase/client'
 import type { Warehouse } from '@/lib/data'
+import { useLang } from '@/contexts/LanguageContext'
 
-// Map Supabase row → Warehouse interface
 function mapRow(r: Record<string, unknown>): Warehouse {
   return {
     id: String(r.id),
@@ -51,8 +51,16 @@ export default function WarehousesPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [dbWarehouses, setDbWarehouses] = useState<Warehouse[]>([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLang()
+  const s = t.search
 
-  // Fetch from Supabase; fallback to mock on error
+  useEffect(() => {
+    // Read ?q= param from URL on load
+    const params = new URLSearchParams(window.location.search)
+    const q = params.get('q')
+    if (q) setSearch(q)
+  }, [])
+
   useEffect(() => {
     async function fetchWarehouses() {
       setLoading(true)
@@ -74,10 +82,8 @@ export default function WarehousesPage() {
     fetchWarehouses()
   }, [])
 
-  const allWarehouses = dbWarehouses
-
   const results = useMemo(() => {
-    let list = allWarehouses.filter(w => {
+    let list = dbWarehouses.filter(w => {
       const q = search.toLowerCase()
       const matchSearch = !q || w.name.toLowerCase().includes(q) || w.location.toLowerCase().includes(q) || w.province.toLowerCase().includes(q) || w.description.toLowerCase().includes(q)
       const matchProvince = province === 'ทั้งหมด' || w.province === province
@@ -93,15 +99,23 @@ export default function WarehousesPage() {
       if (sortBy === 'area_desc') return b.area - a.area
       return b.rating - a.rating
     })
-  }, [allWarehouses, search, province, type, availableOnly, minArea, maxPrice, sortBy])
+  }, [dbWarehouses, search, province, type, availableOnly, minArea, maxPrice, sortBy])
 
   const activeFilters = [
     province !== 'ทั้งหมด' && province,
     type !== 'ทั้งหมด' && type,
-    availableOnly && 'ว่างเลย',
-    minArea && `≥${minArea} ตร.ม.`,
+    availableOnly && (t.warehouse.available),
+    minArea && `≥${minArea} ${t.warehouse.sqm}`,
     maxPrice && `≤฿${parseInt(maxPrice).toLocaleString()}`,
   ].filter(Boolean)
+
+  function clearFilters() {
+    setProvince('ทั้งหมด')
+    setType('ทั้งหมด')
+    setMinArea('')
+    setMaxPrice('')
+    setAvailableOnly(false)
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -110,12 +124,12 @@ export default function WarehousesPage() {
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-extrabold mb-1">ค้นหาคลังสินค้า</h1>
-          <p className="text-blue-200 text-sm mb-5">คลังสินค้าให้เช่าทั่วประเทศไทย — เลือกตามทำเล ขนาด และงบประมาณ</p>
+          <h1 className="text-3xl font-extrabold mb-1">{s.title}</h1>
+          <p className="text-blue-200 text-sm mb-5">{t.home.heroDesc}</p>
           <div className="flex gap-3 max-w-2xl">
             <div className="flex-1 flex items-center gap-3 bg-white rounded-xl px-4 py-3 shadow">
               <Search size={18} className="text-gray-400 shrink-0" />
-              <input type="text" placeholder="ค้นหาชื่อคลัง, ทำเล, จังหวัด..."
+              <input type="text" placeholder={s.placeholder}
                 value={search} onChange={e => setSearch(e.target.value)}
                 className="flex-1 text-gray-800 text-sm outline-none" />
               {search && <button onClick={() => setSearch('')}><X size={16} className="text-gray-400" /></button>}
@@ -123,7 +137,8 @@ export default function WarehousesPage() {
             <button onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-3 rounded-xl font-medium text-sm transition-colors ${showFilters ? 'bg-yellow-400 text-blue-900' : 'bg-white/20 hover:bg-white/30 text-white border border-white/30'}`}>
               <SlidersHorizontal size={16} />
-              ตัวกรอง {activeFilters.length > 0 && (
+              {s.activeFilters}
+              {activeFilters.length > 0 && (
                 <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{activeFilters.length}</span>
               )}
             </button>
@@ -137,39 +152,38 @@ export default function WarehousesPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               <div>
-                <label className="text-xs font-semibold text-gray-500 mb-1.5 block">จังหวัด</label>
+                <label className="text-xs font-semibold text-gray-500 mb-1.5 block">{s.allProvinces}</label>
                 <select value={province} onChange={e => setProvince(e.target.value)}
                   className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white">
                   {PROVINCES.map(p => <option key={p}>{p}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-semibold text-gray-500 mb-1.5 block">ประเภท</label>
+                <label className="text-xs font-semibold text-gray-500 mb-1.5 block">{s.allTypes}</label>
                 <select value={type} onChange={e => setType(e.target.value)}
                   className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white">
                   {TYPES.map(t => <option key={t}>{t}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-semibold text-gray-500 mb-1.5 block">พื้นที่ขั้นต่ำ (ตร.ม.)</label>
-                <input type="number" placeholder="เช่น 500" value={minArea} onChange={e => setMinArea(e.target.value)}
+                <label className="text-xs font-semibold text-gray-500 mb-1.5 block">{s.minArea}</label>
+                <input type="number" placeholder="500" value={minArea} onChange={e => setMinArea(e.target.value)}
                   className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500" />
               </div>
               <div>
-                <label className="text-xs font-semibold text-gray-500 mb-1.5 block">ราคาสูงสุด (฿/เดือน)</label>
-                <input type="number" placeholder="เช่น 100000" value={maxPrice} onChange={e => setMaxPrice(e.target.value)}
+                <label className="text-xs font-semibold text-gray-500 mb-1.5 block">{s.maxPrice}</label>
+                <input type="number" placeholder="100000" value={maxPrice} onChange={e => setMaxPrice(e.target.value)}
                   className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500" />
               </div>
               <div className="flex items-end">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={availableOnly} onChange={e => setAvailableOnly(e.target.checked)} className="w-4 h-4 accent-blue-700" />
-                  <span className="text-sm font-medium text-gray-700">ว่างเลยเท่านั้น</span>
+                  <span className="text-sm font-medium text-gray-700">{s.availableOnly}</span>
                 </label>
               </div>
               <div className="flex items-end">
-                <button onClick={() => { setProvince('ทั้งหมด'); setType('ทั้งหมด'); setMinArea(''); setMaxPrice(''); setAvailableOnly(false) }}
-                  className="text-sm text-red-500 hover:text-red-700 font-medium underline">
-                  ล้างตัวกรอง
+                <button onClick={clearFilters} className="text-sm text-red-500 hover:text-red-700 font-medium underline">
+                  {s.clearFilters}
                 </button>
               </div>
             </div>
@@ -177,7 +191,7 @@ export default function WarehousesPage() {
         </div>
       )}
 
-      {/* Active chips */}
+      {/* Active filter chips */}
       {activeFilters.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 flex flex-wrap gap-2">
           {activeFilters.map(f => (
@@ -191,16 +205,16 @@ export default function WarehousesPage() {
         <div className="flex items-center justify-between mb-5">
           <p className="text-sm text-gray-600 flex items-center gap-2">
             {loading
-              ? <><RefreshCw size={14} className="animate-spin text-blue-500" />กำลังโหลด...</>
-              : <>พบ <span className="font-bold text-blue-700">{results.length}</span> คลังสินค้า</>
+              ? <><RefreshCw size={14} className="animate-spin text-blue-500" />Loading...</>
+              : <><span className="font-bold text-blue-700">{results.length}</span> {s.results}</>
             }
           </p>
           <select value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)}
             className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-blue-500 bg-white">
-            <option value="rating">คะแนนสูงสุด</option>
-            <option value="price_asc">ราคาต่ำสุด</option>
-            <option value="price_desc">ราคาสูงสุด</option>
-            <option value="area_desc">พื้นที่ใหญ่สุด</option>
+            <option value="rating">{s.sortOptions.rating}</option>
+            <option value="price_asc">{s.sortOptions.price_asc}</option>
+            <option value="price_desc">{s.sortOptions.price_desc}</option>
+            <option value="area_desc">{s.sortOptions.area_desc}</option>
           </select>
         </div>
 
@@ -220,8 +234,8 @@ export default function WarehousesPage() {
         ) : results.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🏭</div>
-            <h3 className="text-xl font-bold text-gray-700 mb-2">ไม่พบคลังสินค้า</h3>
-            <p className="text-gray-400">ลองเปลี่ยนคำค้นหาหรือตัวกรองดูครับ</p>
+            <h3 className="text-xl font-bold text-gray-700 mb-2">{s.noResults}</h3>
+            <p className="text-gray-400">{s.noResultsSub}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

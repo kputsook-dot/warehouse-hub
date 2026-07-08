@@ -1,16 +1,24 @@
+'use client'
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Star, Ruler, DoorOpen, Thermometer, Package, Shield } from 'lucide-react';
+import { MapPin, Star, Ruler, DoorOpen, Package } from 'lucide-react';
 import { Warehouse } from '@/lib/data';
+import { useLang } from '@/contexts/LanguageContext';
 
 const TYPE_COLORS: Record<string, string> = {
   '​ทั่วไป': 'bg-blue-100 text-blue-700',
+  'ทั่วไป': 'bg-blue-100 text-blue-700',
   'ควบคุมอุณหภูมิ': 'bg-cyan-100 text-cyan-700',
   'ขนาดใหญ่': 'bg-purple-100 text-purple-700',
   'Bonded': 'bg-amber-100 text-amber-700',
 };
 
 export default function WarehouseCard({ w }: { w: Warehouse }) {
+  const { t } = useLang()
+  const wt = t.warehouse
+
+  const typeLabel = wt.typeLabels[w.type as keyof typeof wt.typeLabels] ?? w.type
+
   return (
     <Link href={`/warehouses/${w.id}`} className="group block bg-white rounded-2xl shadow-sm hover:shadow-md border border-gray-100 overflow-hidden transition-all duration-200 hover:-translate-y-0.5">
       {/* Image */}
@@ -22,20 +30,19 @@ export default function WarehouseCard({ w }: { w: Warehouse }) {
           className="object-cover group-hover:scale-105 transition-transform duration-300"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
-        {/* Badges */}
         <div className="absolute top-3 left-3 flex gap-2">
           <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${TYPE_COLORS[w.type] ?? 'bg-gray-100 text-gray-700'}`}>
-            {w.type}
+            {typeLabel}
           </span>
         </div>
         {!w.available && (
           <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-            ไม่ว่าง
+            {wt.unavailable}
           </div>
         )}
         {w.available && (
           <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-            ว่าง
+            {wt.available}
           </div>
         )}
       </div>
@@ -54,39 +61,39 @@ export default function WarehouseCard({ w }: { w: Warehouse }) {
         <div className="flex items-center gap-1 mb-3">
           <Star size={13} className="fill-amber-400 text-amber-400" />
           <span className="text-sm font-semibold text-gray-800">{w.rating}</span>
-          <span className="text-sm text-gray-400">({w.reviewCount} รีวิว)</span>
+          <span className="text-sm text-gray-400">({w.reviewCount} {wt.review})</span>
         </div>
 
         {/* Specs row */}
         <div className="flex items-center gap-3 text-xs text-gray-500 mb-3 border-t border-gray-50 pt-3">
           <span className="flex items-center gap-1">
             <Ruler size={12} />
-            {w.area.toLocaleString()} ตร.ม.
+            {w.area.toLocaleString()} {wt.sqm}
           </span>
           <span className="flex items-center gap-1">
             <DoorOpen size={12} />
-            {w.loadingDocks} Docks
+            {w.loadingDocks} {wt.docks}
           </span>
           <span className="flex items-center gap-1">
             <Package size={12} />
-            {w.ceilingHeight}ม.
+            {w.ceilingHeight}m
           </span>
         </div>
 
-        {/* Icons */}
+        {/* Amenity badges */}
         <div className="flex gap-1.5 mb-3">
-          {w.hasForklift && <span title="Forklift" className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-md">Forklift</span>}
-          {w.hasSprinkler && <span title="Sprinkler" className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-md">Sprinkler</span>}
-          {w.hasSecurity && <span title="รปภ." className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-md">รปภ.</span>}
+          {w.hasForklift && <span className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-md">Forklift</span>}
+          {w.hasSprinkler && <span className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-md">Sprinkler</span>}
+          {w.hasSecurity && <span className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-md">{wt.security}</span>}
         </div>
 
         {/* Price */}
         <div className="flex items-end justify-between">
           <div>
             <span className="text-xl font-bold text-blue-700">฿{w.pricePerMonth.toLocaleString()}</span>
-            <span className="text-gray-400 text-sm">/เดือน</span>
+            <span className="text-gray-400 text-sm">{wt.perMonth}</span>
           </div>
-          <span className="text-xs text-gray-400">฿{w.pricePerSqm}/ตร.ม.</span>
+          <span className="text-xs text-gray-400">฿{w.pricePerSqm}{wt.perSqm}</span>
         </div>
       </div>
     </Link>
