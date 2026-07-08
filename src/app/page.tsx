@@ -179,9 +179,9 @@ export default function HomePage() {
               <div key={plan.name} className={`rounded-2xl p-6 border ${plan.highlight ? 'bg-blue-700 border-blue-700 text-white shadow-xl scale-105' : 'bg-white border-gray-200'}`}>
                 <div className={`text-sm font-semibold mb-1 ${plan.highlight ? 'text-blue-200' : 'text-gray-500'}`}>{plan.name}</div>
                 <div className="flex items-end gap-1 mb-1">
-                  {plan.price !== 'ติดต่อ' && plan.price !== 'Contact' && <span className={`text-sm ${plan.highlight ? 'text-blue-200' : 'text-gray-400'}`}>฿</span>}
+                  {!isNaN(Number(plan.price)) && <span className={`text-sm ${plan.highlight ? 'text-blue-200' : 'text-gray-400'}`}>฿</span>}
                   <span className="text-3xl font-extrabold">{plan.price}</span>
-                  {plan.price !== 'ติดต่อ' && plan.price !== 'Contact' && <span className={`text-sm pb-1 ${plan.highlight ? 'text-blue-200' : 'text-gray-400'}`}>{h.perMonth}</span>}
+                  {!isNaN(Number(plan.price)) && <span className={`text-sm pb-1 ${plan.highlight ? 'text-blue-200' : 'text-gray-400'}`}>{h.perMonth}</span>}
                 </div>
                 <p className={`text-sm mb-5 ${plan.highlight ? 'text-blue-100' : 'text-gray-500'}`}>{plan.desc}</p>
                 <ul className="space-y-2 mb-6">
